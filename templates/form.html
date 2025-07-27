@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form method="post" class="card bg-secondary p-4">
+    <h4 class="mb-3">{{ action }} Inventory Item</h4>
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input type="text" name="name" value="{{ item.name if item else '' }}" required class="form-control">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <input type="number" name="quantity" value="{{ item.quantity if item else '' }}" required class="form-control">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+            {% for option in ['In Stock', 'Low Stock', 'Out of Stock'] %}
+            <option value="{{ option }}" {% if item and item.status == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('index') }}" class="btn btn-light">Cancel</a>
+        <button type="submit" class="btn btn-primary">{{ action }}</button>
+    </div>
+</form>
+{% endblock %}
