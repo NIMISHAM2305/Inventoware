@@ -1,4 +1,4 @@
 # AWS credential files
 .aws/
-*.pem
+*.pem/
 *.env

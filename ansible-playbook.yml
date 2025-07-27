@@ -1,0 +1,28 @@
+---
+- name: Deploy Inventoware App
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Python3 and pip
+      apt:
+        name:
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install requirements
+      pip:
+        requirements: /app/requirements.txt
+
+    - name: Copy app files
+      copy:
+        src: ./
+        dest: /app/
+
+    - name: Run the app
+      shell: |
+        cd /app
+        nohup flask run --host=0.0.0.0 &
+      args:
+        executable: /bin/bash
