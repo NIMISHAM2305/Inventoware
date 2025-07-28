@@ -1,9 +1,44 @@
+# ---
+# - name: Deploy Inventoware App
+#   hosts: all
+#   become: yes
+#   tasks:
+#     - name: Install Python3 and pip
+#       apt:
+#         name:
+#           - python3
+#           - python3-pip
+#         state: present
+#       when: ansible_os_family == 'Debian'
+
+#     - name: Install requirements
+#       pip:
+#         requirements: /app/requirements.txt
+
+#     - name: Copy app files
+#       copy:
+#         src: ./
+#         dest: /app/
+
+#     - name: Run the app
+#       shell: |
+#         cd /app
+#         nohup flask run --host=0.0.0.0 &
+#       args:
+#         executable: /bin/bash
+
+---
 ---
 - name: Deploy Inventoware App
   hosts: all
   become: yes
   tasks:
-    - name: Install Python3 and pip
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Ensure Python3 and pip3 are installed
       apt:
         name:
           - python3
@@ -11,14 +46,16 @@
         state: present
       when: ansible_os_family == 'Debian'
 
-    - name: Install requirements
-      pip:
-        requirements: /app/requirements.txt
-
     - name: Copy app files
       copy:
-        src: ./
+        src: ./ 
         dest: /app/
+        mode: preserve
+
+    - name: Manually install Python requirements with pip3
+      shell: /usr/bin/python3 -m pip install -r /app/requirements.txt
+      args:
+        executable: /bin/bash
 
     - name: Run the app
       shell: |
