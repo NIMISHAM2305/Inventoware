@@ -1,71 +1,28 @@
-# ---
-# - name: Deploy Inventoware App
-#   hosts: all
-#   become: yes
-#   tasks:
-#     - name: Install Python3 and pip
-#       apt:
-#         name:
-#           - python3
-#           - python3-pip
-#         state: present
-#       when: ansible_os_family == 'Debian'
-
-#     - name: Install requirements
-#       pip:
-#         requirements: /app/requirements.txt
-
-#     - name: Copy app files
-#       copy:
-#         src: ./
-#         dest: /app/
-
-#     - name: Run the app
-#       shell: |
-#         cd /app
-#         nohup flask run --host=0.0.0.0 &
-#       args:
-#         executable: /bin/bash
-
 ---
-- name: Deploy InventoWare App
+- name: Deploy Inventoware App
   hosts: all
   become: yes
-
-  vars:
-    app_dir: /app
-
   tasks:
-    - name: Install Python3 and pip (Debian-based systems)
+    - name: Install Python3 and pip
       apt:
         name:
           - python3
           - python3-pip
         state: present
-        update_cache: yes
       when: ansible_os_family == 'Debian'
 
-    - name: Ensure app directory exists
-      file:
-        path: "{{ app_dir }}"
-        state: directory
-        owner: "{{ ansible_user | default('ubuntu') }}"
-        mode: '0755'
+    - name: Install requirements
+      pip:
+        requirements: /app/requirements.txt
 
     - name: Copy app files
       copy:
-        src: ./  # Make sure this is relative to the playbook path
-        dest: "{{ app_dir }}"
-        owner: "{{ ansible_user | default('ubuntu') }}"
-        mode: '0755'
+        src: ./
+        dest: /app/
 
-    - name: Install Python requirements
-      pip:
-        requirements: "{{ app_dir }}/requirements.txt"
-        executable: pip3
-
-    - name: Run the Flask app in background
+    - name: Run the app
       shell: |
-        nohup python3 {{ app_dir }}/app.py > /dev/null 2>&1 &
+        cd /app
+        nohup flask run --host=0.0.0.0 &
       args:
         executable: /bin/bash
