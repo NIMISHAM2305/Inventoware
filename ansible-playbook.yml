@@ -28,17 +28,11 @@
 #         executable: /bin/bash
 
 ---
----
 - name: Deploy Inventoware App
   hosts: all
   become: yes
   tasks:
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-      when: ansible_os_family == 'Debian'
-
-    - name: Ensure Python3 and pip3 are installed
+    - name: Install Python3 and pip
       apt:
         name:
           - python3
@@ -46,16 +40,15 @@
         state: present
       when: ansible_os_family == 'Debian'
 
+    - name: Install requirements using python3 -m pip
+      shell: python3 -m pip install -r /app/requirements.txt
+      args:
+        executable: /bin/bash
+
     - name: Copy app files
       copy:
         src: ./ 
         dest: /app/
-        mode: preserve
-
-    - name: Manually install Python requirements with pip3
-      shell: /usr/bin/python3 -m pip install -r /app/requirements.txt
-      args:
-        executable: /bin/bash
 
     - name: Run the app
       shell: |
