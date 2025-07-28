@@ -13,7 +13,7 @@
 
 #     - name: Install requirements
 #       pip:
-#         requirements: /app/requirements.txt
+#         requirements: requirements.txt
 
 #     - name: Copy app files
 #       copy:
@@ -28,32 +28,39 @@
 #         executable: /bin/bash
 
 ---
----
 - name: Deploy Inventoware App
   hosts: all
   become: yes
-  tasks:
 
-    - name: Install Python3 and pip for Debian/Ubuntu
+  tasks:
+    - name: Install Python3 and pip (Debian/Ubuntu)
       apt:
         name:
           - python3
           - python3-pip
         state: present
-        update_cache: yes
-      when: ansible_distribution in ['Ubuntu', 'Debian']
+      when: ansible_os_family == 'Debian'
 
-    - name: Copy app files
+    - name: Ensure target directory exists on remote
+      file:
+        path: /opt/inventoware
+        state: directory
+        mode: '0755'
+
+    - name: Copy project files to remote /opt/inventoware
       copy:
-        src: ./  # All your files including app.py, requirements.txt
-        dest: /app/
+        src: ./
+        dest: /opt/inventoware/
+        mode: preserve
 
-    - name: Install requirements using pip3 shell command
-      shell: /usr/bin/pip3 install -r /app/requirements.txt
+    - name: Install Python dependencies from requirements.txt
+      shell: /usr/bin/pip3 install -r /opt/inventoware/requirements.txt
+      args:
+        executable: /bin/bash
 
-    - name: Run the app
+    - name: Run the Flask app using python3 (not flask run)
       shell: |
-        cd /app
-        nohup flask run --host=0.0.0.0 &
+        cd /opt/inventoware
+        nohup python3 app.py > app.log 2>&1 &
       args:
         executable: /bin/bash
