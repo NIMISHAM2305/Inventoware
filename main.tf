@@ -1,11 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
-}
-
-# Load your public key for the key pair
-resource "aws_key_pair" "deployer" {
-  key_name   = "inventoware_key"
-  public_key = file("inventoware_key.pub") # Make sure this file exists
+  region = "ap-south-1"
 }
 
 # Security group to allow SSH
@@ -30,9 +24,9 @@ resource "aws_security_group" "allow_ssh" {
 
 # EC2 instance
 resource "aws_instance" "app_server" {
-  ami           = "ami-0c02fb55956c7d316" # Amazon Linux 2
-  instance_type = "t2.micro"
-  key_name      = aws_key_pair.deployer.key_name
+  ami           = "ami-0d0ad8bb301edb745" # Amazon Linux 2
+  instance_type = "t3.micro"
+  key_name      = "inventoware_key"
   security_groups = [aws_security_group.allow_ssh.name]
 
   tags = {
